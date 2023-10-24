@@ -1,7 +1,7 @@
 # Regional DBSI Extraction Pipeline
-Pipeline for extracting DBSI values for FreeSurfer ROIs. 
+A pipeline for extracting DBSI values for FreeSurfer regions of interest (ROIs) 
 
-## Pre-requities
+## Prerequisite
 Before a user can launch this pipeline, [FSL](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FslInstallation) must be installed with the fsl.sh setup script sourced. 
 
 Additionally, a local install of [FreeSurfer](https://surfer.nmr.mgh.harvard.edu/fswiki/DownloadAndInstall) and [AFNI](https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/background_install/install_instructs/index.html) are also needed.
