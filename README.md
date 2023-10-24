@@ -1,4 +1,4 @@
-# dbsiproc
+# Regional DBSI Extraction Pipeline
 Pipeline for extracting DBSI values for FreeSurfer ROIs. 
 
 ## Pre-requities
