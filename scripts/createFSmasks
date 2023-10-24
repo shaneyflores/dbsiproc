@@ -1,0 +1,50 @@
+#!/bin/bash
+##############################################################################################################
+## createFSmasks
+## DESCRIPTION: Create FS masks from the parcellation file
+##
+## USAGE: createFSmasks paramsfn
+## 
+## AUTHOR: Shaney Flores, Washington University School of Medicine
+##############################################################################################################
+VERSION=1.0 # 23-Nov-20, original release
+
+if [ "$1" == "--version" ]; then
+	echo $VERSION
+	exit 0
+fi
+
+program=$( basename $0 )
+idstr='$ID: '$program', v'$VERSION' Mon Nov 23 15:32:28 CDT 2020 sflores $'
+echo $idstr
+
+if [ $# -lt 1 ]; then
+	echo "Usage: $program paramsfn"
+	exit -1
+fi
+
+die(){
+	echo -e >&2 "$@ \n"
+	exit -1
+}
+
+# Read PARAMS file
+paramsfn=$1
+source $paramsfn || die "$program ERROR: Cannot source params file $paramsfn"
+
+[ ! -d rois/ ] && mkdir rois/ ## create roi directory
+
+# Create ROI masks
+if [ ! "$( ls -A rois/ )" ]; then 
+
+	echo "Generating FS region masks ... "
+	fslut=${fs_home}/FreeSurferColorLUT.txt
+
+	while read fsregion ; do 
+
+		wmparc_label=$( grep "\s${fsregion}\s" ${fslut} | cut -d" " -f1 )
+		fslmaths ${parc%.*} -thr ${wmparc_label} -uthr ${wmparc_label} -bin rois/${fsregion} || die "$program ERROR: fslmaths ${parc%.*} -thr ${wmparc_label} -uthr ${wmparc_label} -bin rois/${fsregion} failed"
+
+	done < <( awk -F, 'NR>1 {print$1}' ${roilist} )
+
+fi

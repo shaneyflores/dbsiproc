@@ -1,0 +1,58 @@
+#!/bin/bash
+##############################################################################################################
+## dbsiROI
+## DESCRIPTION: Get DBSI values for each ROI from the parcellation
+##
+## USAGE: dbsiROI paramsfn
+## 
+## AUTHOR: Shaney Flores, Washington University School of Medicine
+##############################################################################################################
+VERSION=1.1 # 23-Nov-20, original release
+
+if [ "$1" == "--version" ]; then
+	echo $VERSION
+	exit 0
+fi
+
+program=$( basename $0 )
+idstr='$ID: '$program', v'$VERSION' Mon Nov 23 15:32:28 CDT 2020 sflores $'
+echo $idstr
+
+if [ $# -lt 1 ]; then
+	echo "Usage: $program paramsfn"
+	exit -1
+fi
+
+die(){
+	echo -e >&2 "$@ \n"
+	exit -1
+}
+
+apply_fsmasks() {
+	echo "Applying FS region masks ... "
+	outfile=${3}_results.csv
+	if [ ! -f "$outfile" ]; then 
+		touch $outfile
+		echo "Session,DBSI_Scan,ROI,Value,NVoxels" >> $outfile
+	fi
+	imgName=${2}
+	for fsregion in $( awk -F, 'NR>1 {print$1}' ${1} ); do 
+		echo $imgName " <= " $fsregion
+		val=$( fslstats ${imgName} -k rois/${fsregion} -n -M | sed 's/ //g' )
+		nvoxels=$( fslstats rois/${fsregion} -V | cut -d" " -f1 ) 
+		printf "${3},${imgName},${fsregion},${val},${nvoxels}\n" >> $outfile
+		unset val
+		unset nvoxels
+	done
+}
+
+# Read PARAMS file
+paramsfn=$1
+source $paramsfn || die "$program ERROR: Cannot source params file $paramsfn"
+
+####################################################
+## Get regional values for specified DBSI scans
+IFS=',' read -r -a dbsi <<< "$dbsi_scans"
+for scan in "${dbsi[@]}" ; do 
+	apply_fsmasks ${roilist} ${scan}_to_t1 ${session}
+done

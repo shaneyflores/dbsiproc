@@ -1,0 +1,42 @@
+############################
+###  General parameters  ###
+############################
+
+## name of session
+session=
+
+## list of ROIs to extract DBSI values for 
+roilist=ROIs
+
+############################
+### FreeSurfer variables ###
+############################
+
+## path to subject FreeSurfer's mri folder
+fsdir=/path/to/FreeSurfer/mri
+
+## path to FreeSurfer installation
+fs_home=/usr/local/pkg/FreeSurfer-5.3-HCP
+
+## file from FreeSurfer mri folder to use for T1
+t1=T1.mgz
+
+## file from FreeSurfer mri folder to use for ROIs
+parc=wmparc.mgz
+
+
+############################
+###       Diffusion      ###
+############################
+
+## subject's T2 image
+t2wimg=
+
+## subject's b0 map file
+b0img=
+
+## full path to folder containing DBSI images
+dbsi_path=
+
+## names of DBSI scans to process
+dbsi_scans=cell_ratio_map,hind_ratio_map

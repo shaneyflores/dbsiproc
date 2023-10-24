@@ -1,0 +1,70 @@
+#!/bin/bash
+##############################################################################################################
+## regdbsi
+## DESCRIPTION: Handle registration from DBSI to FS T1 
+##
+## USAGE: regdbsi paramsfn
+## 
+## The script reads a params file that includes:
+##		t2    :		T2 weighted image 		
+##		b0img :		b0 diffusion image (should be in NIFTI format)
+##
+## AUTHOR: Shaney Flores, Washington University School of Medicine
+##############################################################################################################
+VERSION=1.0 # 23-Nov-20, original release
+
+if [ "$1" == "--version" ]; then
+	echo $VERSION
+	exit 0
+fi
+
+die(){
+	echo -e >&2 "$@ \n"
+	exit -1
+}
+
+program=$( basename $0 )
+idstr='$ID: '$program', v'$VERSION' Mon Nov 23 15:32:28 CDT 2020 sflores $'
+echo $idstr
+
+if [ $# -lt 1 ]; then
+	echo "Usage: $program paramsfn"
+	exit -1
+fi
+
+# Read PARAMS file
+paramsfn=$1
+source $paramsfn || die "$program ERROR: Cannot source params file $paramsfn"
+
+####################################################
+## identify t2w image and convert to nifti
+t2wroot=$( basename ${t2wimg%%.*} )
+[[ ${t2wimg} =~ *.4dfp.* ]] && nifti_4dfp -n ${t2wimg} ${t2wroot}.nii 
+
+####################################################
+## Register T2w to T1 image, mask out skull and tissue from co-regstered T2w image
+flirt -ref ${t1%.*} -in ${t2wroot} -dof 6 -omat head_t2w_to_t1.mat -out ${t2wroot}_to_t1
+fslmaths ${t2wroot}_to_t1 -mas BrainMask ${t2wroot}_brain
+
+####################################################
+## move t2w_brain back to t2-space and then re-register it to the T1001_brainmask
+convert_xfm -omat head_t1_to_t2w.mat -inverse head_t2w_to_t1.mat
+flirt -ref ${t2wroot} -in ${t2wroot}_brain -applyxfm -init head_t1_to_t2w.mat -out ${t2wroot}_brain_t2sp
+flirt -ref t1_brain -in ${t2wroot}_brain_t2sp -omat brain_t2w_to_t1mpr.mat -out ${t2wroot}_bm_to_t1_bm
+
+####################################################
+## Register b0-DBSI to T2w
+b0root=$( basename $b0img | sed 's/\.nii//' )
+flirt -ref ${t2wroot}_brain_t2sp -in ${b0root} -omat brain_b0_to_t2w.mat 
+
+####################################################
+## create transform matrix for b0 -> T1001 and apply to b0 image
+convert_xfm -omat brain_b0_to_t1mpr.mat -concat brain_t2w_to_t1mpr.mat brain_b0_to_t2w.mat
+
+####################################################
+## Register each DBSI image to participant T1
+IFS=',' read -r -a dbsi <<< "$dbsi_scans"
+for scan in "${dbsi[@]}" ; do 
+	echo "Preprocessing $scan ... "
+	flirt -ref t1_brain -in ${dbsi_path}/${scan} -applyxfm -init brain_b0_to_t1mpr.mat -out ${scan}_to_t1
+done 
