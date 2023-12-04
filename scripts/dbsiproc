@@ -13,6 +13,11 @@ if [ "$1" = "-version" ]; then
 	exit 0
 fi
 
+die(){
+	echo -e >&2 "$@ \n"
+	exit -1
+}
+
 paramsfn=$1
 
 ################
@@ -24,18 +29,18 @@ cd proc
 
 ########################################
 ## convert T1/wmparc to usable format 
-dbsipreproc $paramsfn
+dbsipreproc $paramsfn || die "$program ERROR: dbsipreproc failed"
 
 ########################################
 ## create ROI masks from wmparc
-createFSmasks $paramsfn
+createFSmasks $paramsfn || die "$program ERROR: createFSmasks failed"
 
 ########################################
 ## register dbsi images to participant T1 
-regdbsi $paramsfn
+regdbsi $paramsfn || die "$program ERROR: regdbsi failed"
 
 ########################################
 ## apply ROI masks to get regional values
-dbsiROI $paramsfn
+dbsiROI $paramsfn || die "$program ERROR: dbsiROI failed"
 
 cd ..

@@ -8,6 +8,12 @@
 ##############################################################################################################
 VERSION=1.0 # 23-Nov-20, original release
 
+program=$( basename $0 )
+idstr='$ID: '$program', v'$VERSION' Mon Nov 23 15:32:28 CDT 2020 sflores $'
+echo $idstr
+
+####################################
+## GENERAL MANAGEMENT
 if [ "$1" == "--version" ]; then
 	echo $VERSION
 	exit 0
@@ -18,24 +24,24 @@ die(){
 	exit -1
 }
 
-## Convert (T1|wmparc).mgz to NIFTI
-convert_nii(){
-	mgzroot=$1
-	$fs_home/bin/mri_convert ${mgzroot}.mgz ${mgzroot}.nii || die "$program ERROR: mri convert failed"
-}
-
-program=$( basename $0 )
-idstr='$ID: '$program', v'$VERSION' Mon Nov 23 15:32:28 CDT 2020 sflores $'
-echo $idstr
-
+## help menu
 if [ $# -lt 1 ]; then
 	echo "Usage: $program paramsfn"
 	exit -1
 fi
 
+####################################
+## PROCESS SPECIFIC
+
 # Read PARAMS file
 paramsfn=$1
 source $paramsfn || die "$program ERROR: Cannot source params file $paramsfn"
+
+## Convert (T1|wmparc).mgz to NIFTI
+convert_nii(){
+	mgzroot=$1
+	$fs_home/bin/mri_convert ${mgzroot}.mgz ${mgzroot}.nii || die "$program ERROR: mri convert failed"
+}
 
 ####################################
 ## Convert FreeSurfer files to NIFTI format
