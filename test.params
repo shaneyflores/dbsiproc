@@ -12,10 +12,10 @@ roilist=ROIs
 ### FreeSurfer variables ###
 ############################
 
-## path to subject FreeSurfer's mri folder
-fsdir=/path/to/FreeSurfer/mri
+## full path to subject FreeSurfer's mri folder
+fsdir=
 
-## path to FreeSurfer installation
+## full path to FreeSurfer installation
 fs_home=/usr/local/pkg/FreeSurfer-5.3-HCP
 
 ## file from FreeSurfer mri folder to use for T1
@@ -29,10 +29,10 @@ parc=wmparc.mgz
 ###       Diffusion      ###
 ############################
 
-## subject's T2 image
+## full path to subject's T2 image
 t2wimg=
 
-## subject's b0 map file
+## subject's b0 map file (this should be in the dbsi_path folder)
 b0img=
 
 ## full path to folder containing DBSI images
