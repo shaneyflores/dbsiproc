@@ -28,6 +28,8 @@ die(){
 	exit -1
 }
 
+## NOTE: Investigate how to output standard deviation to result.csv file
+##
 apply_fsmasks() {
 	echo "Applying FS region masks ... "
 	outfile=${3}_results.csv

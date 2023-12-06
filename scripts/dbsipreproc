@@ -37,6 +37,8 @@ fi
 paramsfn=$1
 source $paramsfn || die "$program ERROR: Cannot source params file $paramsfn"
 
+export FREESURFER_HOME=${fs_home}
+
 ## Convert (T1|wmparc).mgz to NIFTI
 convert_nii(){
 	mgzroot=$1

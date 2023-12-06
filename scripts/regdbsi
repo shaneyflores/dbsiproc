@@ -54,8 +54,8 @@ flirt -ref t1_brain -in ${t2wroot}_brain_t2sp -omat brain_t2w_to_t1mpr.mat -out 
 
 ####################################################
 ## Register b0-DBSI to T2w
-b0root=$( basename $b0img | sed 's/\.nii//' )
-flirt -ref ${t2wroot}_brain_t2sp -in ${b0root} -omat brain_b0_to_t2w.mat 
+b0root=$( basename $b0img | sed 's/\.nii.*//' )
+flirt -ref ${t2wroot}_brain_t2sp -in ${b0root} -out brain_b0_to_t2w -omat brain_b0_to_t2w.mat 
 
 ####################################################
 ## create transform matrix for b0 -> T1001 and apply to b0 image
